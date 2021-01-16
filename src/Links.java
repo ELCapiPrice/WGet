@@ -7,17 +7,19 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class EjemploLinks {
+/** Código obtenido de https://mkyong.com/java/java-how-to-get-all-links-from-a-web-page/ */
+
+public class Links {
 
   public static void main(String[] args) throws IOException {
 
-    for (String link : findLinks("https://google.com")) {
+    for (String link : findLinks("https://www.escom.ipn.mx/")) {
       System.out.println(link);
     }
 
   }
 
-  private static Set<String> findLinks(String url) throws IOException {
+  public static Set<String> findLinks(String url) throws IOException {
 
     Set<String> links = new HashSet<>();
 
