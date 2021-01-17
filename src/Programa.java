@@ -1,5 +1,8 @@
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -13,12 +16,14 @@ public class Programa {
 
   private static ArrayList<String> linksArchivos = new ArrayList<String>();
   private static ArrayList<String> linksDirectorios = new ArrayList<String>();
+  private static ArrayList<URL> linksAbsolutos = new ArrayList<URL>();
   public static URL urlPrincipal = null;
 
   public static void main(String[] args) {
     Scanner entrada = new Scanner(System.in);
     String nombreCarpeta = null;
     URL url = null;
+
 
     try{
       System.out.println("--------------------------");
@@ -35,30 +40,34 @@ public class Programa {
       Scanner entrada2 = new Scanner(System.in);
       urlPrincipal = new URL(entrada2.nextLine());
       //Obtenemos todos los links de la página
-      setLinks(urlPrincipal, "/"); //Llenamos los arrays de todos los directorios y archivos que existen
-
-
+      //setLinks(urlPrincipal, "/"); //Llenamos los arrays de todos los directorios y archivos que existen
+      System.out.println("Leyendo las carpetas de la página...");
+      setLinks(urlPrincipal);
+      System.out.println("Generando las carpetas de la página, por favor espere...");
+      System.out.println(linksAbsolutos);
+      System.out.println("LISTO");
 
       //Creamos los directorios
-      for(int i=0;i<linksDirectorios.size();i++){
-        String directorio = nombreCarpeta + "/" + linksDirectorios.get(i);
-        crearCarpeta(directorio);
+      for(int i=0;i<linksAbsolutos.size();i++){
+        String replace = linksAbsolutos.get(i).toString().replace(urlPrincipal.toString(),"");
+        String directorio = nombreCarpeta + "/" + replace;
+        if(directorio.endsWith("/")){
+          crearCarpeta(directorio);
+        } else{
+          WGet.Download(linksAbsolutos.get(i), directorio);
+        }
       }
-
-
-      System.out.println("Directorios: " + linksDirectorios);
-      System.out.println("Archivos: "+ linksArchivos);
 
       //WGet.Download(url, "./"+nombreCarpeta);
 
       //wGet(url);
 
     } catch (DataFormatException e){
-      System.out.println("No se puede nombrar un directorio con el nombre: "+ nombreCarpeta);
+      System.out.println("Error en el nombre del directorio "+ e.getMessage());
     } catch (NoSuchElementException e){
-      System.out.println("No ingresaste el nombre de la carpeta.");
+      System.out.println("No ingresaste el nombre de la carpeta."+ e.getMessage());
     } catch (MalformedURLException e){
-      System.out.println("Se ingresó una URL erronea.");
+      System.out.println("Se ingresó una URL erronea."+ e.getMessage());
     } catch (Exception e){
       System.out.println("Error general: "+ e.getMessage());
     }
@@ -66,49 +75,77 @@ public class Programa {
     //wGet("PaginaProfe", "http://148.204.58.221/axel/aplicaciones/");
   }
 
-  //TODO obtener todos los links de cada pagina
-  private static void setLinks(URL url, String dirPadre){ // http://148.204.58.221/axel/aplicaciones/Contingencia/
-    System.out.println("URL que recibo: "+ url);
-    try{
-      for (String link : Links.findLinks(url.toString())) { //Para cada uno de los links que encuentre en las etiquetas <a>
-        if(!link.startsWith("http")){ //Ignoramos los links de otras páginas ya que podría ser un bucle casi infinito si llegará un link de una página grande como youtube.
-          if(!linksArchivos.contains(link) || !linksDirectorios.contains(link)){ //Solo agregamos el link si aun no esta en la lista
-            if(link.endsWith("/")){ //Es un directorio
-              if(!link.startsWith("/")){
-                linksDirectorios.add(urlPrincipal.toString() +"/"+link);
-                System.out.println("LINK:" + link);
-                System.out.println(urlPrincipal.toString()+"/"+link);
-                dirPadre = link;
-                URL newURL = new URL(urlPrincipal.toString()+"/"+dirPadre);
-                System.out.println("URL: " + newURL);
-                setLinks(newURL, "/");
-              }
-            } else{ //Es un archivo
-              linksArchivos.add(link);
-            }
-          }
+  private static void setLinks(URL url){
+    try {
+      Document doc = Jsoup.connect(url.toString()).get();
+      //System.out.println("HTML"+doc.body().html());
+      Elements links = doc.getElementsByTag("a");
+      for (Element link : links) {
+        String rutaAbsoluta;
+        String rutaRelativa = link.attr("href");
+        //if(!rutaRelativa.startsWith(urlPrincipal.toString())) continue;
+        if(rutaRelativa.startsWith("?")) continue;
+        if(rutaRelativa.startsWith("#")) continue;
+        if(rutaRelativa.startsWith("/")) continue;
+        if(rutaRelativa.isEmpty()) continue;
+        System.out.println("Aqui todo bien");
+        if(rutaRelativa.startsWith("./")) {
+          rutaRelativa = rutaRelativa.replace("./","");
+          //System.out.println("URL: "+ url.toString());
+          //System.out.println("Ruta Relativa: "+ rutaRelativa);
+          //System.out.println("PATH: "+ url.getPath());
+          //System.out.println("Host: "+ url.getHost());
+          //int lastDiagonal = getPenultimateIndexOfChar(url.getPath(),'/'); ///SSEIS/cubepro/dgfhgh/
+          //System.out.println("INDEX: "+ lastDiagonal);
+          rutaAbsoluta = url.toString() + rutaRelativa;
+        } else{
+          rutaAbsoluta = url.toString() + rutaRelativa;
         }
+        //System.out.println("RutaRelativa: "+ rutaRelativa);
+        //System.out.println("URL: "+url.toString());
+        URL urlAbsoluto = new URL(rutaAbsoluta);
+        if(linksAbsolutos.contains(urlAbsoluto)) continue;
+        linksAbsolutos.add(urlAbsoluto);
+        if(urlAbsoluto.toString().endsWith("/")){
+          //System.out.println(urlAbsoluto);
+          setLinks(urlAbsoluto);
+        }
+        //System.out.println(rutaRelativa + " - " + link.text());
+        //System.out.println("RUTA ABSOLUTA:" + rutaAbsoluta);
       }
-    } catch (IOException e){
-      System.out.println("Error al obtener uno de los links");
+      //System.out.println(linksAbsolutos);
+    } catch (HttpStatusException e) {
+      //System.out.println(url.toString());
+      System.out.println("Error: " + e.getMessage());
+    } catch (IOException ex) {
+      System.out.println("Ocurrio un error: "+ ex.getMessage());;
     }
   }
 
-  private static void crearCarpeta(String nombreCarpeta) throws DataFormatException {
-    System.out.println(nombreCarpeta);
-    if(nombreCarpeta != null){
-      if(nombreCarpeta.matches("[-_. A-Za-z0-9/]+")){ // \ / : * ? " < > |
-        File file = new File("./"+ nombreCarpeta);
-        if(file.mkdir()){
+  private static int getPenultimateIndexOfChar(String palabra,char caracter){
+    ArrayList<Integer> ocurrencias = new ArrayList<Integer>();
+    int index = palabra.indexOf(caracter);
+    while (index >= 0) {
+      System.out.println("INDEX: "+index);
+      index = palabra.indexOf(caracter, index + 1);
+    }
+    return 0;
+  }
+
+  private static void crearCarpeta(String directorio) throws DataFormatException {
+    if(directorio != null){
+      if(directorio.matches("[-_. A-Za-z0-9áéíóúÁÉÍÓÚ/]+")){ // \ / : * ? " < > |
+        File file = new File("./"+ directorio);
+        if(file.mkdirs()){
           System.out.println("Directorio creado satisfactoriamente");
         } else{
           System.out.println("Error al crear el directorio o ya existe uno creado con el mismo nombre.");
         }
       } else{
-        throw new DataFormatException();
+        throw new DataFormatException("El nombre del directorio es inválido");
       }
     } else{
-      throw new DataFormatException();
+      throw new DataFormatException("El nombre del directorio no puede estar vacío");
     }
   }
 
