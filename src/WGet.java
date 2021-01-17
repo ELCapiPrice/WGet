@@ -14,31 +14,44 @@ public class WGet {
     try {
       //Obtenemos la información de el URL
       doc = Jsoup.connect(url.toString()).get();
+
       //Obtenemos el titulo (sera usado para nombrar el archivo)
       title = getTitleByDoc(doc);
       //Creamos el archivo en el directorio que se especifica
       System.out.println("Directorio: "+ url.getFile());
-
+      createNewFile(url.getFile(), getFileExtension(url.getPath()), doc);
 
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
+  //todo obtener la extension del archivo
+  //
   private static String getFileExtension(String file) {
-    int posicionPunto = file.indexOf('.');
+    //
+    //prueba.html
+    //prueba
+    //rez/highlight.js
+    //rez/highlight.php
+    int posicionPunto = file.indexOf('.'); //Contine un punto
     if(posicionPunto == -1) {
       return ".html";
     }
     return "prueba";
   }
 
-  private static void createNewFile(String dir, String extension){
+  //TODO ESCRIBIR EL HTML DEL ARCHIVO
+  private static void createNewFile(String dir, String extension, Document doc){
+    // /smite/index.html
     try{
       File archivo = new File(dir + extension);
       if(archivo.createNewFile()){
         System.out.println("Se creo el archivo");
-        FileWriter myWriter = new FileWriter("filename.txt");
+        FileWriter myWriter = new FileWriter(dir + extension);
+
+        // pegar el doc
+
       } else{
         System.out.println("Error al crear el archivo.");
       }

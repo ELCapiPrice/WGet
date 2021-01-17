@@ -13,6 +13,7 @@ public class Programa {
 
   private static ArrayList<String> linksArchivos = new ArrayList<String>();
   private static ArrayList<String> linksDirectorios = new ArrayList<String>();
+  public static URL urlPrincipal = null;
 
   public static void main(String[] args) {
     Scanner entrada = new Scanner(System.in);
@@ -30,10 +31,13 @@ public class Programa {
       crearCarpeta(nombreCarpeta);
 
       System.out.println("Ingresa la URL de la página a descargar");
-      System.out.println("Ejemplo: http://148.204.58.221");
-      url = new URL(entrada.nextLine());
-      //Obtener todos los links de la página
-      setLinks(url.toString(), nombreCarpeta); //Llenamos los arrays de todos los directorios y archivos que existen
+      System.out.println("Ejemplo: http://148.204.58.221/axel/aplicaciones/");
+      Scanner entrada2 = new Scanner(System.in);
+      urlPrincipal = new URL(entrada2.nextLine());
+      //Obtenemos todos los links de la página
+      setLinks(urlPrincipal, "/"); //Llenamos los arrays de todos los directorios y archivos que existen
+
+
 
       //Creamos los directorios
       for(int i=0;i<linksDirectorios.size();i++){
@@ -42,8 +46,8 @@ public class Programa {
       }
 
 
-      //System.out.println("Directorios: " + linksDirectorios);
-      //System.out.println("Archivos: "+ linksArchivos);
+      System.out.println("Directorios: " + linksDirectorios);
+      System.out.println("Archivos: "+ linksArchivos);
 
       //WGet.Download(url, "./"+nombreCarpeta);
 
@@ -62,19 +66,23 @@ public class Programa {
     //wGet("PaginaProfe", "http://148.204.58.221/axel/aplicaciones/");
   }
 
-  private static void setLinks(String url, String nombreCarpeta){
+  //TODO obtener todos los links de cada pagina
+  private static void setLinks(URL url, String dirPadre){ // http://148.204.58.221/axel/aplicaciones/Contingencia/
+    System.out.println("URL que recibo: "+ url);
     try{
-      for (String link : Links.findLinks(url)) {
+      for (String link : Links.findLinks(url.toString())) { //Para cada uno de los links que encuentre en las etiquetas <a>
         if(!link.startsWith("http")){ //Ignoramos los links de otras páginas ya que podría ser un bucle casi infinito si llegará un link de una página grande como youtube.
           if(!linksArchivos.contains(link) || !linksDirectorios.contains(link)){ //Solo agregamos el link si aun no esta en la lista
             if(link.endsWith("/")){ //Es un directorio
-              if(link.startsWith("/")){ //Si inicia con /
-                link = link.substring(1); //Le quitamos la primer diagonal para no ocacionar bugs
+              if(!link.startsWith("/")){
+                linksDirectorios.add(urlPrincipal.toString() +"/"+link);
+                System.out.println("LINK:" + link);
+                System.out.println(urlPrincipal.toString()+"/"+link);
+                dirPadre = link;
+                URL newURL = new URL(urlPrincipal.toString()+"/"+dirPadre);
+                System.out.println("URL: " + newURL);
+                setLinks(newURL, "/");
               }
-              linksDirectorios.add(link);
-              //System.out.println(nombreCarpeta+"/"+link);
-              //System.out.println(link+"/"+nombreCarpeta);
-              setLinks(url+"/"+link,nombreCarpeta); //Hacemos recursividad para crear todos los directorios dentro de otros
             } else{ //Es un archivo
               linksArchivos.add(link);
             }
@@ -104,80 +112,5 @@ public class Programa {
     }
   }
 
-
-  private static WgetStatus wGet(URL url){
-    InputStream httpIn = null;
-    OutputStream fileOutput = null;
-    OutputStream bufferedOut = null;
-    try {
-      // Checamos que exista conexion con la URL
-      httpIn = new BufferedInputStream(new URL(url.toString()).openStream());
-      // prep saving the file
-      fileOutput = new FileOutputStream("prueba");
-      bufferedOut = new BufferedOutputStream(fileOutput, 1024);
-      byte data[] = new byte[1024];
-      boolean fileComplete = false;
-      int count = 0;
-      while (!fileComplete) {
-        count = httpIn.read(data, 0, 1024);
-        if (count <= 0) {
-          fileComplete = true;
-        } else {
-          bufferedOut.write(data, 0, count);
-        }
-      }
-    } catch (MalformedURLException e) {
-      return WgetStatus.MalformedUrl;
-    } catch (IOException e) {
-      return WgetStatus.IoException;
-    } finally {
-      try {
-        bufferedOut.close();
-        fileOutput.close();
-        httpIn.close();
-      } catch (IOException e) {
-        return WgetStatus.UnableToCloseOutputStream;
-      }
-    }
-    return WgetStatus.Success;
-  }
-
-
-  public static WgetStatus wGet(String saveAsFile, String urlOfFile) {
-    InputStream httpIn = null;
-    OutputStream fileOutput = null;
-    OutputStream bufferedOut = null;
-    try {
-      // check the http connection before we do anything to the fs
-      httpIn = new BufferedInputStream(new URL(urlOfFile).openStream());
-      // prep saving the file
-      fileOutput = new FileOutputStream(saveAsFile);
-      bufferedOut = new BufferedOutputStream(fileOutput, 1024);
-      byte data[] = new byte[1024];
-      boolean fileComplete = false;
-      int count = 0;
-      while (!fileComplete) {
-        count = httpIn.read(data, 0, 1024);
-        if (count <= 0) {
-          fileComplete = true;
-        } else {
-          bufferedOut.write(data, 0, count);
-        }
-      }
-    } catch (MalformedURLException e) {
-      return WgetStatus.MalformedUrl;
-    } catch (IOException e) {
-      return WgetStatus.IoException;
-    } finally {
-      try {
-        bufferedOut.close();
-        fileOutput.close();
-        httpIn.close();
-      } catch (IOException e) {
-        return WgetStatus.UnableToCloseOutputStream;
-      }
-    }
-    return WgetStatus.Success;
-  }
 
 }
