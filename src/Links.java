@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-/** Código obtenido de https://mkyong.com/java/java-how-to-get-all-links-from-a-web-page/ */
+
 
 public class Links {
 

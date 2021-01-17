@@ -16,6 +16,7 @@ public class WGet {
       doc = Jsoup.connect(url.toString()).get();
       //Creamos el archivo en el directorio que se especifica
       createNewFile(dir,".html",doc);
+
       //Obtenemos el titulo (sera usado para nombrar el archivo)
       title = getTitleByDoc(doc);
 
@@ -62,9 +63,9 @@ public class WGet {
   private static void createNewFile(String dir, String extension, Document doc){
     try{
       String carpeta = dir.substring(0,dir.lastIndexOf('/'));
-
       File directorio = new File(carpeta);
       File archivo = new File(dir);
+     // System.out.println("Documento: "+doc.toString());
       System.out.println("Directorio que recibo para crear: "+ dir);
 
       if(directorio.mkdirs()){
@@ -73,8 +74,11 @@ public class WGet {
       if(archivo.createNewFile()){
         System.out.println("Se creo el archivo: "+ dir);
         FileWriter myWriter = new FileWriter(dir);
-
-        // pegar el doc
+        BufferedWriter bw  = new BufferedWriter(myWriter);
+        PrintWriter wr = new PrintWriter(bw);
+        wr.append(doc.toString());
+        wr.close();
+        bw.close();
 
       } else{
         System.out.println("Error desconocido al crear el archivo.");
