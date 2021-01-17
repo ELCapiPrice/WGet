@@ -84,11 +84,11 @@ public class Programa {
         String rutaAbsoluta;
         String rutaRelativa = link.attr("href");
         //if(!rutaRelativa.startsWith(urlPrincipal.toString())) continue;
+        if(rutaRelativa.startsWith("http")) continue;
         if(rutaRelativa.startsWith("?")) continue;
         if(rutaRelativa.startsWith("#")) continue;
         if(rutaRelativa.startsWith("/")) continue;
         if(rutaRelativa.isEmpty()) continue;
-        System.out.println("Aqui todo bien");
         if(rutaRelativa.startsWith("./")) {
           rutaRelativa = rutaRelativa.replace("./","");
           //System.out.println("URL: "+ url.toString());
