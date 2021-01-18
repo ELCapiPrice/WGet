@@ -72,6 +72,12 @@ public class WGet {
 
 
       if(directorio.mkdirs()){
+        System.out.println(doc.body().html());
+        System.out.println("Durmiendo.....");
+        //Thread.sleep(5000);
+        if(archivo.createNewFile()){
+          System.out.println("Archivo creado con éxito");
+        }
         System.out.println("Directorio creado con éxito");
       }
 //este condicional revisa si es un archivo html o htm solo pare estsos dos

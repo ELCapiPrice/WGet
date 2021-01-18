@@ -43,6 +43,22 @@ public class Programa {
       urlPrincipal = new URL(entrada2.nextLine());
       //Obtenemos todos los links de la página
       //setLinks(urlPrincipal, "/"); //Llenamos los arrays de todos los directorios y archivos que existen
+
+      Document html = Jsoup.connect(urlPrincipal.toString()).get();
+      File index = new File(nombreCarpeta+"/index.html");
+      if(index.createNewFile()){
+
+        FileWriter myWriter = new FileWriter(nombreCarpeta+"/index.html");
+        BufferedWriter bw  = new BufferedWriter(myWriter);
+        PrintWriter wr = new PrintWriter(bw);
+        wr.append(html.toString());
+        wr.close();
+        bw.close();
+
+        System.out.println("Index creado con éxito");
+      }
+
+
       System.out.println("Leyendo las carpetas de la página...");
       setLinks(urlPrincipal);
       System.out.println("Generando las carpetas de la página, por favor espere...");
