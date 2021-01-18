@@ -159,4 +159,8 @@ public class WGet {
     }
   }
 
+  private static void getHtml (){
+
+  }
+
 }
