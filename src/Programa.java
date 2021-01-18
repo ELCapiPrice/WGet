@@ -89,6 +89,26 @@ public class Programa {
       Document doc = Jsoup.connect(url.toString()).get();
       //System.out.println("HTML"+doc.body().html());
       Elements links = doc.getElementsByTag("a");
+      Elements styles = doc.getElementsByTag("link");
+      Elements javascripts = doc.getElementsByTag("script");
+      for(Element style : styles){
+        String rutaRelativa = style.attr("href");
+        System.out.println("Ruta Style: "+ rutaRelativa);
+
+        String rutaAbsoluta = url.toString() + rutaRelativa;
+        URL urlAbsoluto = new URL(rutaAbsoluta);
+        if(linksAbsolutos.contains(urlAbsoluto)) continue;
+        linksAbsolutos.add(urlAbsoluto);
+      }
+      for (Element javascript : javascripts){
+        String rutaRelativa = javascript.attr("src");
+        System.out.println("Ruta Javascript: "+ javascript);
+
+        String rutaAbsoluta = url.toString() + rutaRelativa;
+        URL urlAbsoluto = new URL(rutaAbsoluta);
+        if(linksAbsolutos.contains(urlAbsoluto)) continue;
+        linksAbsolutos.add(urlAbsoluto);
+      }
       for (Element link : links) {
         String rutaAbsoluta;
         String rutaRelativa = link.attr("href");
