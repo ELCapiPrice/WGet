@@ -23,6 +23,8 @@ public class Programa {
     Scanner entrada = new Scanner(System.in);
     String nombreCarpeta = null;
     URL url = null;
+    long TInicio, TFin, tiempo; //Variables para determinar el tiempo de ejecución
+    TInicio = System.currentTimeMillis();
 
 
     try{
@@ -75,6 +77,11 @@ public class Programa {
     }
 
     //wGet("PaginaProfe", "http://148.204.58.221/axel/aplicaciones/");
+
+    TFin = System.currentTimeMillis(); //Tomamos la hora en que finalizó el algoritmo y la almacenamos en la variable T
+    tiempo = TFin - TInicio; //Calculamos los milisegundos de diferencia
+    System.out.println("Tiempo de ejecución en milisegundos: " + tiempo); //Mostramos en pantalla el tiempo de ejecución en milisegundos
+    System.out.println("Teimpo de ejecuion en segundos: "+ tiempo/1000.0);
   }
 
   private static void setLinks(URL url){
