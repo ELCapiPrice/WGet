@@ -32,8 +32,8 @@ public class WGet {
       System.out.println("Error en el MIME: "+ e.getMessage());
       //aux=dir.substring(dir.lastIndexOf("/"),dir.length());
       //nombre=aux.substring(1); //nombre nosrgresa la extension  Ejemplo:  .doc  , .php ,
-      crearArchivoConMimeDiferente(url.getPath(), dir);
-      createAnyFile(urlCompleta,dir);
+      crearArchivoConMimeDiferente(url.getPath(), dir, urlCompleta);
+      //createAnyFile(urlCompleta,dir);
 
       title = url.getPath();
       System.out.println("URL PATH: "+ url.getPath());
@@ -92,8 +92,11 @@ public class WGet {
       //Creamos para cualquier archivo
         try {
           archivo.createNewFile();
-          System.out.println("Se creo el archivo: "+ dir);
-         createAnyFile(url,dir);
+          if(archivo.exists()){
+            System.out.println("Se creo el archivo: "+ dir);
+            createAnyFile(url,dir);
+          }
+
         }catch (Exception e){
           e.printStackTrace();
         }
@@ -138,14 +141,19 @@ public class WGet {
     bis.close();
   }
 
-  private static void  crearArchivoConMimeDiferente (String url, String dir) {
+  private static void  crearArchivoConMimeDiferente (String url, String dir , String urlCompleta) {
    try {
      String carpeta = dir.substring(0,dir.lastIndexOf('/'));
      File directorio = new File(carpeta);
      File archivo = new File(dir);
+      if(directorio.mkdirs()){
+       System.out.println("Directorio creado con éxito");
+     }
+      if(!archivo.exists()){
       PrintWriter writer = new PrintWriter(archivo, "UTF-8");
-      writer.println("");
       writer.close();
+      createAnyFile(urlCompleta,dir);
+    }
     } catch (Exception e) {
       e.printStackTrace();
     }

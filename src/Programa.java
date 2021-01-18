@@ -54,6 +54,8 @@ public class Programa {
         if(directorio.endsWith("/")){
           crearCarpeta(directorio);
         } else{
+          System.out.println("Ruta Especifica: "+linksAbsolutos.get(i));
+          System.out.println("Directortio especifico: "+directorio);
           WGet.Download(linksAbsolutos.get(i), directorio);
         }
       }
