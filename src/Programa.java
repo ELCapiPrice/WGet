@@ -48,6 +48,26 @@ public class Programa {
       File index = new File(nombreCarpeta+"/index.html");
       if(index.createNewFile()){
 
+        Elements imagesEditarRuta = html.getElementsByTag("img");
+
+        for(Element image : imagesEditarRuta){
+          String rutaRelativa = image.attr("src");
+
+          if(rutaRelativa.startsWith("/")){
+            rutaRelativa = rutaRelativa.substring(1);
+          }
+
+          image.attr("src",rutaRelativa);
+
+          System.out.println("Ruta Style: "+ rutaRelativa);
+
+          String rutaAbsoluta = urlPrincipal.toString() + rutaRelativa;
+          URL urlAbsoluto = new URL(rutaAbsoluta);
+          if(linksAbsolutos.contains(urlAbsoluto)) continue;
+          linksAbsolutos.add(urlAbsoluto);
+        }
+
+
         FileWriter myWriter = new FileWriter(nombreCarpeta+"/index.html");
         BufferedWriter bw  = new BufferedWriter(myWriter);
         PrintWriter wr = new PrintWriter(bw);
@@ -107,6 +127,19 @@ public class Programa {
       Elements links = doc.getElementsByTag("a");
       Elements styles = doc.getElementsByTag("link");
       Elements javascripts = doc.getElementsByTag("script");
+      Elements images = doc.getElementsByTag("img");
+
+      for(Element image : images){
+        String rutaRelativa = image.attr("src");
+        System.out.println("Ruta Style: "+ rutaRelativa);
+
+
+        String rutaAbsoluta = url.toString() + rutaRelativa;
+        URL urlAbsoluto = new URL(rutaAbsoluta);
+        if(linksAbsolutos.contains(urlAbsoluto)) continue;
+        linksAbsolutos.add(urlAbsoluto);
+      }
+
       for(Element style : styles){
         String rutaRelativa = style.attr("href");
         System.out.println("Ruta Style: "+ rutaRelativa);
