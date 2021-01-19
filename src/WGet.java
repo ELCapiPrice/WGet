@@ -14,15 +14,11 @@ public class WGet {
     String title = null;
     String aux , nombre=null;
     try {
-      //Obtenemos la información de el URL
-
       doc = Jsoup.connect(url.toString()).get();
       //Creamos el archivo en el directorio que se especifica
       aux=dir.substring(dir.lastIndexOf("/"),dir.length());
       nombre=aux.substring(1); //nombre nosrgresa la extension  Ejemplo:  .doc  , .php ,
       createNewFile(dir,WGet.getFileExtension(nombre),doc,urlCompleta);
-      //System.out.println("URL PERRONA: "+url.toString());
-
       //Obtenemos el titulo (sera usado para nombrar el archivo)
       title = getTitleByDoc(doc);
 
@@ -34,31 +30,13 @@ public class WGet {
       //nombre=aux.substring(1); //nombre nosrgresa la extension  Ejemplo:  .doc  , .php ,
       crearArchivoConMimeDiferente(url.getPath(), dir, urlCompleta);
       //createAnyFile(urlCompleta,dir);
-
-      title = url.getPath();
       System.out.println("URL PATH: "+ url.getPath());
-/*
-      try (BufferedInputStream in = new BufferedInputStream(new URL(url.toString()).openStream());
-           FileOutputStream fileOutputStream = new FileOutputStream(titulo)) {
-        byte dataBuffer[] = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-          fileOutputStream.write(dataBuffer, 0, bytesRead);
-        }
-      } catch (IOException er) {
-        // handle exception
-      }*/
-
-
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
-  //todo obtener la extension del archivo
-  //
-
-
+  //todo obtener la extension del archirvo
 
   //TODO ESCRIBIR EL HTML DEL ARCHIVO
   private static void createNewFile(String dir, String extension, Document doc, String url){
@@ -68,9 +46,6 @@ public class WGet {
       File archivo = new File(dir);
       System.out.println("Tipo de archivo: "+extension);
       System.out.println("Directorio que recibo para crear: "+ dir);
-     // System.out.println("Extension: "+dir.substring(dir.lastIndexOf("/"),dir.length()));
-
-
       if(directorio.mkdirs()){
         System.out.println(doc.body().html());
         System.out.println("Durmiendo.....");
@@ -94,7 +69,6 @@ public class WGet {
           System.out.println("Error desconocido al crear el archivo.");
         }
       }
-
       //Creamos para cualquier archivo
         try {
           archivo.createNewFile();
@@ -106,8 +80,6 @@ public class WGet {
         }catch (Exception e){
           e.printStackTrace();
         }
-
-
     } catch (IOException e){
       System.out.println("Ocurrio un error al crear el archivo: " + e.getMessage());
     }
@@ -163,10 +135,6 @@ public class WGet {
     } catch (Exception e) {
       e.printStackTrace();
     }
-  }
-
-  private static void getHtml (){
-
   }
 
 }
