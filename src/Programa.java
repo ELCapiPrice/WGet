@@ -13,15 +13,9 @@ import java.util.zip.DataFormatException;
 
 public class Programa {
 
-  private static ArrayList<String> linksArchivos = new ArrayList<String>();
-  private static ArrayList<String> linksDirectorios = new ArrayList<String>();
   private static ArrayList<URL> linksAbsolutos = new ArrayList<URL>();
-  public static URL urlPrincipal = null;
 
   public static void main(String[] args) {
-    Scanner entrada = new Scanner(System.in);
-    String nombreCarpeta = null;
-    URL url = null;
     long TInicio, TFin, tiempo; //Variables para determinar el tiempo de ejecución
     TInicio = System.currentTimeMillis();
     try{
@@ -29,29 +23,30 @@ public class Programa {
       System.out.println("           Wget           ");
       System.out.println("--------------------------");
       System.out.println("");
-      System.out.println("Ingresa el nombre de la carpeta a crear. (Aqui se guardaran los archivos descargados)");
-      nombreCarpeta = entrada.nextLine();
-      crearCarpeta(nombreCarpeta);
+      System.out.println("Ingresa la ruta o nombre de la carpeta a crear. Esto para guardar los archivos de la página.");
+      String nombreCarpeta = getNombreCarpeta();
+      crearCarpeta(nombreCarpeta); //Creamos la carpeta donde guardaremos la página web
       System.out.println("Ingresa la URL de la página a descargar");
       System.out.println("Ejemplo: http://148.204.58.221/axel/aplicaciones/");
-      Scanner entrada2 = new Scanner(System.in);
-      urlPrincipal = new URL(entrada2.nextLine());
+      URL url = getURLPagina(); //Obtenemos el link de la página ingresado
 
-      Document html = Jsoup.connect(urlPrincipal.toString()).get();
+      //System.out.println("HOST: "+ url.getHost());
+      System.out.println("PATH: "+ url.getPath());
+      //System.out.println("Link chido: "+ url.getProtocol() + "://" + url.getHost() + url.getPath());
+
+
+      Document html = Jsoup.connect(url.toString()).get();
       File index = new File(nombreCarpeta+"/index.html");
       if(index.createNewFile()){
-
         Elements imagesEditarRuta = html.getElementsByTag("img");
-
         for(Element image : imagesEditarRuta){
           String rutaRelativa = image.attr("src");
-
           if(rutaRelativa.startsWith("/")){
             rutaRelativa = rutaRelativa.substring(1);
           }
           image.attr("src",rutaRelativa);
           System.out.println("Ruta Style: "+ rutaRelativa);
-          String rutaAbsoluta = urlPrincipal.toString() + rutaRelativa;
+          String rutaAbsoluta = url.toString() + rutaRelativa;
           URL urlAbsoluto = new URL(rutaAbsoluta);
           if(linksAbsolutos.contains(urlAbsoluto)) continue;
           linksAbsolutos.add(urlAbsoluto);
@@ -62,34 +57,39 @@ public class Programa {
         wr.append(html.toString());
         wr.close();
         bw.close();
-
         System.out.println("Index creado con éxito");
       }
+
+
       System.out.println("Leyendo las carpetas de la página...");
-      setLinks(urlPrincipal);
+      setLinks(url);
       System.out.println("Generando las carpetas de la página, por favor espere...");
-      System.out.println(linksAbsolutos);
-      //System.out.println("LISTO");
-      //Creamos los directorios
       for(int i=0;i<linksAbsolutos.size();i++){
-        String replace = linksAbsolutos.get(i).toString().replace(urlPrincipal.toString(),"");
-        String directorio = nombreCarpeta + "/" + replace;
+        setLinks(linksAbsolutos.get(i));
+      }
+      //System.out.println(linksAbsolutos);
+
+
+      for(int i=0;i<linksAbsolutos.size();i++){
+        String directorio = nombreCarpeta + linksAbsolutos.get(i).getPath();
         if(directorio.endsWith("/")){
           crearCarpeta(directorio);
         } else{
-          System.out.println("Ruta Especifica: "+linksAbsolutos.get(i));
-          System.out.println("Directortio especifico: "+directorio);
+          //System.out.println("Ruta Especifica: "+linksAbsolutos.get(i));
+          //System.out.println("Directortio especifico: "+directorio);
           WGet.Download(linksAbsolutos.get(i), directorio);
         }
       }
+
+
 
     } catch (DataFormatException e){
       System.out.println("Error en el nombre del directorio "+ e.getMessage());
     } catch (NoSuchElementException e){
       System.out.println("No ingresaste el nombre de la carpeta."+ e.getMessage());
-    } catch (MalformedURLException e){
+    } /*catch (MalformedURLException e){
       System.out.println("Se ingresó una URL erronea."+ e.getMessage());
-    } catch (Exception e){
+    }*/ catch (Exception e){
       System.out.println("Error general: "+ e.getMessage());
     }
 
@@ -101,93 +101,127 @@ public class Programa {
     System.out.println("Tiempo de ejecucion en segundos: "+ tiempo/1000.0);
   }
 
-  private static void setLinks(URL url){
+  private static URL getLinkAtributo(URL url,String atributo){
+    URL urlBienFormada;
+    String host = url.getHost(); // 148.204.58.221 | www.escom.ipn.mx
     try {
-      Document doc = Jsoup.connect(url.toString()).get();
-      Elements links = doc.getElementsByTag("a");
-      Elements styles = doc.getElementsByTag("link");
-      Elements javascripts = doc.getElementsByTag("script");
-      Elements images = doc.getElementsByTag("img");
-
-      for(Element image : images){
-        String rutaRelativa = image.attr("src");
-        System.out.println("Ruta Style: "+ rutaRelativa);
-
-
-        String rutaAbsoluta = url.toString() + rutaRelativa;
-        URL urlAbsoluto = new URL(rutaAbsoluta);
-        if(linksAbsolutos.contains(urlAbsoluto)) continue;
-        linksAbsolutos.add(urlAbsoluto);
-      }
-
-      for(Element style : styles){
-        String rutaRelativa = style.attr("href");
-        System.out.println("Ruta Style: "+ rutaRelativa);
-
-        String rutaAbsoluta = url.toString() + rutaRelativa;
-        URL urlAbsoluto = new URL(rutaAbsoluta);
-        if(linksAbsolutos.contains(urlAbsoluto)) continue;
-        linksAbsolutos.add(urlAbsoluto);
-      }
-      for (Element javascript : javascripts){
-        String rutaRelativa = javascript.attr("src");
-        System.out.println("Ruta Javascript: "+ javascript);
-
-        String rutaAbsoluta = url.toString() + rutaRelativa;
-        URL urlAbsoluto = new URL(rutaAbsoluta);
-        if(linksAbsolutos.contains(urlAbsoluto)) continue;
-        linksAbsolutos.add(urlAbsoluto);
-      }
-      for (Element link : links) {
-        String rutaAbsoluta;
-        String rutaRelativa = link.attr("href");
-
-        if(rutaRelativa.startsWith("http")) continue;
-        if(rutaRelativa.startsWith("?")) continue;
-        if(rutaRelativa.startsWith("#")) continue;
-        if(rutaRelativa.startsWith("/")) continue;
-        if(rutaRelativa.endsWith("../")) continue;
-        if(rutaRelativa.isEmpty()) continue;
-        if(rutaRelativa.startsWith("./")) {
-          rutaRelativa = rutaRelativa.replace("./","");
-
-          rutaAbsoluta = url.toString() + rutaRelativa;
+      if(atributo.contains( host )){ //Si es una url absoluta http://148.204.58.221/axel/sfdsffg
+        return new URL(atributo);
+      } else { // Absoluta:  http://google.com.mx/dgdhrt  Relativa: /img/df.jpg | smite/foto.png | ../smite | #contacto
+        if(atributo.startsWith("http")) return null; //Es una página externa
+        if(atributo.startsWith("../")) return null; //Los directorios padres no se descargan
+        if(atributo.startsWith("#")) return null;
+        if(atributo.startsWith("?")) return null;
+        if(atributo.startsWith("//")) return null;
+        System.out.println("Atributo: "+ atributo);
+        if(atributo.startsWith("./")){
+          atributo = atributo.substring(1); //Le quitamos el punto
+          if(atributo.startsWith("/../")){
+            atributo = atributo.substring(2); //Le quitamos la primer diagonal y los 2 puntos
+          }
+          atributo = url.getProtocol() + "://" + url.getHost() + atributo;
+          return new URL(atributo);
+        }
+        //Si no es absoluta ni otro dominio entonces es una relativa
+        if(atributo.startsWith("/")){
+          atributo = url.getProtocol() + "://" + url.getHost() + atributo;
+          return new URL(atributo);
         } else{
-          rutaAbsoluta = url.toString() + rutaRelativa;
+          atributo = url.getProtocol() + "://" + url.getHost() + url.getPath() + atributo;
+          return new URL(atributo);
         }
-
-        URL urlAbsoluto = new URL(rutaAbsoluta);
-        if(linksAbsolutos.contains(urlAbsoluto)) continue;
-        linksAbsolutos.add(urlAbsoluto);
-        if(urlAbsoluto.toString().endsWith("/")){
-          //System.out.println("Entra hasta aca");
-          System.out.println(linksAbsolutos);
-          setLinks(urlAbsoluto);
-        }
-
       }
+    } catch (MalformedURLException e) {
+      System.out.println("Error al tratar de convertir el atributo: "+ atributo);
+    }
+    return null;
+  }
 
-    } catch (HttpStatusException e) {
+  private static ArrayList<URL> obtenerLlaveAtributo(Elements elementos, URL url){
+    ArrayList<URL> linksObtenidos = new ArrayList<URL>();
+    String linksNuevos;
+    URL urlNueva;
+    for(Element elemento : elementos){
+      if( elemento.hasAttr("src") ){
+        linksNuevos = elemento.attr("src");
+        urlNueva = getLinkAtributo(url, linksNuevos);
+        if(urlNueva != null){
+          if(!linksAbsolutos.contains(urlNueva)){
+            if(!linksObtenidos.contains(urlNueva)){
+              linksObtenidos.add(urlNueva);
+            }
+          }
+        }
+      } else if( elemento.hasAttr("href") ){
+        linksNuevos = elemento.attr("href");
+        urlNueva = getLinkAtributo(url, linksNuevos);
+        if(urlNueva != null){
+          if(!linksAbsolutos.contains(urlNueva)){
+            if(!linksObtenidos.contains(urlNueva)){
+              linksObtenidos.add(urlNueva);
+            }
+          }
+        }
+      }
+    }
+    return linksObtenidos;
+  }
 
-      System.out.println("Error: " + e.getMessage());
-    } catch (IOException ex) {
-      System.out.println("Ocurrio un error: "+ ex.getMessage());;
+  private static void setLinks(URL url){
+    //ArrayList<URL> links = new ArrayList<URL>();
+    Elements href = obtenerElementosPorAtributo(url,"href"); //Obtenemos los elementos con atributo
+    Elements src = obtenerElementosPorAtributo(url,"src");
+    if(href != null && src != null) {
+      linksAbsolutos.addAll(obtenerLlaveAtributo(href, url));
+      linksAbsolutos.addAll(obtenerLlaveAtributo(src, url));
     }
   }
 
 
+  private static Elements obtenerElementosPorAtributo(URL url, String atributo){
+    try {
+      if(url.getPath().contains(".")) return null; //Si tiene extension no es un html
+      Document doc = Jsoup.connect(url.toString()).get(); //Obtenemos el documento html
+      //System.out.println("Atributos: "+ doc.getElementsByAttribute(atributo));
+      return doc.getElementsByAttribute(atributo);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  private static String getNombreCarpeta(){
+    Scanner entrada = new Scanner(System.in);
+    return entrada.nextLine();
+  }
+
+  private static URL getURLPagina(){
+    Scanner entrada = new Scanner(System.in);
+    try {
+      String url = entrada.nextLine();
+      if(url.endsWith("/")){
+        return new URL(url);
+      } else{
+        url = url + "/";
+        return new URL(url);
+      }
+    } catch (MalformedURLException e) {
+      System.out.println("El url ingresado es incorrecto.");
+      return null;
+    }
+  }
 
   private static void crearCarpeta(String directorio) throws DataFormatException {
     if(directorio != null){
       if(directorio.matches("[-_. A-Za-z0-9áéíóúÁÉÍÓÚ/]+")){ // \ / : * ? " < > |
-        File file = new File("./"+ directorio);
+        File file = new File(directorio);
         if(file.mkdirs()){
-          System.out.println("Directorio creado satisfactoriamente");
+          System.out.println("Directorio creado: "+ file.getPath() );
         } else{
           System.out.println("Error al crear el directorio o ya existe uno creado con el mismo nombre.");
         }
       } else{
-        throw new DataFormatException("El nombre del directorio es inválido");
+        throw new DataFormatException("El nombre del directorio tiene caracteres inválidos.");
       }
     } else{
       throw new DataFormatException("El nombre del directorio no puede estar vacío");
