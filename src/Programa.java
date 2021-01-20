@@ -69,7 +69,7 @@ public class Programa {
       setLinks(urlPrincipal);
       System.out.println("Generando las carpetas de la página, por favor espere...");
       System.out.println(linksAbsolutos);
-      System.out.println("LISTO");
+      //System.out.println("LISTO");
       //Creamos los directorios
       for(int i=0;i<linksAbsolutos.size();i++){
         String replace = linksAbsolutos.get(i).toString().replace(urlPrincipal.toString(),"");
@@ -146,6 +146,7 @@ public class Programa {
         if(rutaRelativa.startsWith("?")) continue;
         if(rutaRelativa.startsWith("#")) continue;
         if(rutaRelativa.startsWith("/")) continue;
+        if(rutaRelativa.endsWith("../")) continue;
         if(rutaRelativa.isEmpty()) continue;
         if(rutaRelativa.startsWith("./")) {
           rutaRelativa = rutaRelativa.replace("./","");
@@ -159,7 +160,8 @@ public class Programa {
         if(linksAbsolutos.contains(urlAbsoluto)) continue;
         linksAbsolutos.add(urlAbsoluto);
         if(urlAbsoluto.toString().endsWith("/")){
-
+          //System.out.println("Entra hasta aca");
+          System.out.println(linksAbsolutos);
           setLinks(urlAbsoluto);
         }
 

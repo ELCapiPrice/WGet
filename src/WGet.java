@@ -32,7 +32,7 @@ public class WGet {
       //createAnyFile(urlCompleta,dir);
       System.out.println("URL PATH: "+ url.getPath());
     } catch (IOException e) {
-      e.printStackTrace();
+      System.out.println("No se encontro la ruta especificada");
     }
   }
 
@@ -133,7 +133,7 @@ public class WGet {
       createAnyFile(urlCompleta,dir);
     }
     } catch (Exception e) {
-      e.printStackTrace();
+     System.out.println("Error alencontrar la ruta especificada");
     }
   }
 

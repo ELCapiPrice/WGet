@@ -11,13 +11,6 @@ import java.util.Set;
 
 public class Links {
 
-  public static void main(String[] args) throws IOException {
-
-    for (String link : findLinks("https://www.escom.ipn.mx/")) {
-      System.out.println(link);
-    }
-
-  }
 
   public static Set<String> findLinks(String url) throws IOException {
 
