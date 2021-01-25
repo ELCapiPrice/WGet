@@ -17,6 +17,7 @@ public class Programa {
 
   public static void main(String[] args) {
     long TInicio, TFin, tiempo; //Variables para determinar el tiempo de ejecución
+    Thread t1 = null, t2 = null, t3 = null, t4 = null, t5 = null;
     TInicio = System.currentTimeMillis();
     try{
       System.out.println("--------------------------");
@@ -93,11 +94,11 @@ int i=0;
           Hilos hilo5= new Hilos(linksAbsolutos.get(i++), directorio, "Hilo5");
           directorio = nombreCarpeta + linksAbsolutos.get(i).getPath();
 
-          Thread t1= new Thread(hilo1);
-          Thread t2 = new Thread(hilo2);
-          Thread t3 = new Thread(hilo3);
-          Thread t4 = new Thread(hilo4);
-          Thread t5 = new Thread(hilo5);
+          t1= new Thread(hilo1);
+          t2 = new Thread(hilo2);
+          t3 = new Thread(hilo3);
+          t4 = new Thread(hilo4);
+          t5 = new Thread(hilo5);
           t1.start();
           t2.start();
           t3.start();
@@ -110,6 +111,15 @@ int i=0;
           WGet.Download(linksAbsolutos.get(i), directorio);
         i++;
 
+        }
+      }
+
+      while(true){
+        if(t1.isAlive() || t2.isAlive() || t3.isAlive() || t4.isAlive() || t5.isAlive()){
+          continue;
+        } else{
+          System.out.println("Acabaron mis hilos, me rompo");
+          break;
         }
       }
 
