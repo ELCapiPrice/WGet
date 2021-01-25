@@ -50,7 +50,7 @@ public class WGet {
       if(directorio.mkdirs()){
         System.out.println(doc.body().html());
         System.out.println("Durmiendo.....");
-        //Thread.sleep(5000);
+        //Hilos.sleep(5000);
         if(archivo.createNewFile()){
           System.out.println("Archivo creado con éxito");
         }
