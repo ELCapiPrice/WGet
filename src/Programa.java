@@ -51,7 +51,7 @@ public class Programa {
           if(linksAbsolutos.contains(urlAbsoluto)) continue;
           linksAbsolutos.add(urlAbsoluto);
         }
-        FileWriter myWriter = new FileWriter(nombreCarpeta+"/index.html");
+        FileWriter myWriter = new FileWriter(nombreCarpeta+ url.getPath() +"index.html");
         BufferedWriter bw  = new BufferedWriter(myWriter);
         PrintWriter wr = new PrintWriter(bw);
         wr.append(html.toString());
