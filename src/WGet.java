@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.ByteBuffer;
 
 public class WGet {
 
@@ -49,7 +50,7 @@ public class WGet {
       if(directorio.mkdirs()){
         System.out.println(doc.body().html());
         System.out.println("Durmiendo.....");
-        //Thread.sleep(5000);
+        //Hilos.sleep(5000);
         if(archivo.createNewFile()){
           System.out.println("Archivo creado con éxito");
         }
@@ -78,7 +79,7 @@ public class WGet {
           }
 
         }catch (Exception e){
-          e.printStackTrace();
+          System.out.println("Ruta prohibida");
         }
     } catch (IOException e){
       System.out.println("Ocurrio un error al crear el archivo: " + e.getMessage());
@@ -111,8 +112,10 @@ public class WGet {
     FileOutputStream fis= new FileOutputStream(fileStr);
 
     byte[] buffer= new byte[1024];
+    //ByteBuffer buffer2 = ByteBuffer.allocate(1024);
     int count=0;
-    while((count=bis.read(buffer,0,1024))!=-1){
+    //(count=bis.read(buffer,0,1024))!=-1
+    while(-1 != (count =bis.read(buffer) )){
       fis.write(buffer,0,count);
     }
     fis.close();

@@ -69,15 +69,47 @@ public class Programa {
       }
       //System.out.println(linksAbsolutos);
 
+int i=0;
+     // for(int i=0;i<linksAbsolutos.size();i++){
 
-      for(int i=0;i<linksAbsolutos.size();i++){
-        String directorio = nombreCarpeta + linksAbsolutos.get(i).getPath();
+      while (i<linksAbsolutos.size()){
+      String directorio = nombreCarpeta + linksAbsolutos.get(i).getPath();
+
         if(directorio.endsWith("/")){
           crearCarpeta(directorio);
+          i++;
         } else{
           //System.out.println("Ruta Especifica: "+linksAbsolutos.get(i));
           //System.out.println("Directortio especifico: "+directorio);
+
+           Hilos hilo1= new Hilos(linksAbsolutos.get(i++), directorio,"Hilo1");
+          directorio = nombreCarpeta + linksAbsolutos.get(i).getPath();
+          Hilos hilo2= new Hilos(linksAbsolutos.get(i++), directorio, "Hilo2");
+          directorio = nombreCarpeta + linksAbsolutos.get(i).getPath();
+          Hilos hilo3= new Hilos(linksAbsolutos.get(i++), directorio, "Hilo3");
+          directorio = nombreCarpeta + linksAbsolutos.get(i).getPath();
+          Hilos hilo4= new Hilos(linksAbsolutos.get(i++), directorio, "Hilo4");
+          directorio = nombreCarpeta + linksAbsolutos.get(i).getPath();
+          Hilos hilo5= new Hilos(linksAbsolutos.get(i++), directorio, "Hilo5");
+          directorio = nombreCarpeta + linksAbsolutos.get(i).getPath();
+
+          Thread t1= new Thread(hilo1);
+          Thread t2 = new Thread(hilo2);
+          Thread t3 = new Thread(hilo3);
+          Thread t4 = new Thread(hilo4);
+          Thread t5 = new Thread(hilo5);
+          t1.start();
+          t2.start();
+          t3.start();
+          t4.start();
+          t5.start();
+
+
+
+
           WGet.Download(linksAbsolutos.get(i), directorio);
+        i++;
+
         }
       }
 
@@ -102,6 +134,9 @@ public class Programa {
   }
 
   private static URL getLinkAtributo(URL url,String atributo){
+  if(atributo.startsWith("//")){
+    return  null;
+  }
     URL urlBienFormada;
     String host = url.getHost(); // 148.204.58.221 | www.escom.ipn.mx
     try {
@@ -184,8 +219,13 @@ public class Programa {
       Document doc = Jsoup.connect(url.toString()).get(); //Obtenemos el documento html
       //System.out.println("Atributos: "+ doc.getElementsByAttribute(atributo));
       return doc.getElementsByAttribute(atributo);
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (HttpStatusException err) {
+      System.out.println("Fallo Fetching url . url prohibido o caido: "+err);
+      //err.printStackTrace();
+
+    }catch(IOException e){
+    // e.printStackTrace();
+
     }
     return null;
   }
