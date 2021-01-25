@@ -102,6 +102,9 @@ public class Programa {
   }
 
   private static URL getLinkAtributo(URL url,String atributo){
+  if(atributo.startsWith("//")){
+    return  null;
+  }
     URL urlBienFormada;
     String host = url.getHost(); // 148.204.58.221 | www.escom.ipn.mx
     try {
@@ -184,8 +187,13 @@ public class Programa {
       Document doc = Jsoup.connect(url.toString()).get(); //Obtenemos el documento html
       //System.out.println("Atributos: "+ doc.getElementsByAttribute(atributo));
       return doc.getElementsByAttribute(atributo);
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (HttpStatusException err) {
+      System.out.println("Fallo Fetching url . url prohibido o caido: "+err);
+      //err.printStackTrace();
+
+    }catch(IOException e){
+    // e.printStackTrace();
+
     }
     return null;
   }
